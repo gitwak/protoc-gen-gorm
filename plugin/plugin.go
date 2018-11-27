@@ -428,10 +428,10 @@ func (p *OrmPlugin) renderGormTag(field *Field) string {
 		gormRes += fmt.Sprintf("type:%s;", string(tag.GetType()))
 	}
 	if tag.Size_ != nil {
-		gormRes += fmt.Sprintf("size:%s;", strconv.Itoa(tag.GetSize_()))
+		gormRes += fmt.Sprintf("size:%s;", fmt.Sprintf("%d", tag.GetSize_()))
 	}
 	if tag.Precision != nil {
-		gormRes += fmt.Sprintf("precision:%s;", strconv.Itoa(tag.GetPrecision()))
+		gormRes += fmt.Sprintf("precision:%s;", fmt.Sprintf("%d", tag.GetPrecision()))
 	}
 	if tag.GetPrimaryKey() {
 		gormRes += "primary_key;"
