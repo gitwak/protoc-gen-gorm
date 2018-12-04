@@ -758,7 +758,11 @@ func (p *OrmPlugin) generateFieldConversion(message *generator.Descriptor, field
 					p.P(`}`)
 				}
 			} else {
-				p.P(`if v, err := `, p.Import(ptypesImport), `.TimestampProto(m.`, fieldName, `); err != nil {`)
+				if nillable {
+					p.P(`if v, err := `, p.Import(ptypesImport), `.TimestampProto(*m.`, fieldName, `); err != nil {`)
+				} else {
+					p.P(`if v, err := `, p.Import(ptypesImport), `.TimestampProto(m.`, fieldName, `); err != nil {`)
+				}
 				p.P(`return to, err`)
 				p.P(`} else {`)
 				if nillable {
