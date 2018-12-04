@@ -745,7 +745,7 @@ func (p *OrmPlugin) generateFieldConversion(message *generator.Descriptor, field
 				if nillable {
 					p.P(`if m.`, fieldName, ` != nil {`)
 				}
-				p.P(`if v, err = `, p.Import(ptypesImport), `.Timestamp(m.`, fieldName, `); err != nil {`)
+				p.P(`if v, err := `, p.Import(ptypesImport), `.Timestamp(m.`, fieldName, `); err != nil {`)
 				p.P(`return to, err`)
 				p.P(`} else {`)
 				if nillable {
