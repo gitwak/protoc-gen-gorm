@@ -690,10 +690,11 @@ func (p *OrmPlugin) generateFieldConversion(message *generator.Descriptor, field
 			if nillable {
 				p.P(`if int(m.`, fieldName, `) != 0 {`)
 				if p.stringEnums {	
-					p.P(`to.`, fieldName, ` = `, fieldType, `_name[int32(m.`, fieldName, `)]`)
+					p.P(`v := `, fieldType, `_name[int32(m.`, fieldName, `)]`)
 				} else {
-					p.P(`to.`, fieldName, ` = int32(m.`, fieldName, `)`)
+					p.P(`v := int32(m.`, fieldName, `)`)
 				}
+				p.P(`to.`, fieldName, ` = &v`)
 				p.P(`} else { `)
 				p.P(`to.`, fieldName, ` = nil`)
 				p.P(`}`)
