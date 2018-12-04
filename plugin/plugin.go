@@ -765,11 +765,11 @@ func (p *OrmPlugin) generateFieldConversion(message *generator.Descriptor, field
 				}
 				p.P(`return to, err`)
 				p.P(`} else {`)
-				if nillable {
-					p.P(`to.`, fieldName, ` = &v`)
-				} else {
+				//if nillable {
+				//	p.P(`to.`, fieldName, ` = &v`)
+				//} else {
 					p.P(`to.`, fieldName, ` = v`)
-				}
+				//}
 				p.P(`}`)
 			}
 		} else if coreType == protoTypeJSON {
