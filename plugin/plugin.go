@@ -744,6 +744,8 @@ func (p *OrmPlugin) generateFieldConversion(message *generator.Descriptor, field
 			if toORM {
 				if nillable {
 					p.P(`if m.`, fieldName, ` != nil {`)
+				} else {
+					p.P(`if !m.`, fieldName, `.IsZero() {`)
 				}
 				p.P(`if v, err := `, p.Import(ptypesImport), `.Timestamp(m.`, fieldName, `); err != nil {`)
 				p.P(`return to, err`)
@@ -754,9 +756,7 @@ func (p *OrmPlugin) generateFieldConversion(message *generator.Descriptor, field
 					p.P(`to.`, fieldName, ` = v`)
 				}
 				p.P(`}`)
-				if nillable {
-					p.P(`}`)
-				}
+				p.P(`}`)
 			} else {
 				if nillable {
 					p.P(`if m.`, fieldName, ` != nil {`)
