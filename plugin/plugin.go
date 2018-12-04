@@ -739,12 +739,24 @@ func (p *OrmPlugin) generateFieldConversion(message *generator.Descriptor, field
 				p.P(`to.`, fieldName, ` = &`, p.Import(gtypesImport), `.UUID{Value: m.`, fieldName, `.String()}`)
 			}
 		} else if coreType == protoTypeTimestamp { // Singular WKT Timestamp ---
+			nillable := strings.HasPrefix(ofield.Type, "*")
+			
 			if toORM {
-				p.P(`if m.`, fieldName, ` != nil {`)
-				p.P(`if to.`, fieldName, `, err = `, p.Import(ptypesImport), `.Timestamp(m.`, fieldName, `); err != nil {`)
+				if nillable {
+					p.P(`if m.`, fieldName, ` != nil {`)
+				}
+				p.P(`if v, err = `, p.Import(ptypesImport), `.Timestamp(m.`, fieldName, `); err != nil {`)
 				p.P(`return to, err`)
+				p.P(`} else {`)
+				if nillable {
+					p.P(`to.`, fieldName, ` = &v`)
+				} else {
+					p.P(`to.`, fieldName, ` = v`)
+				}
 				p.P(`}`)
-				p.P(`}`)
+				if nillable {
+					p.P(`}`)
+				}
 			} else {
 				p.P(`if to.`, fieldName, `, err = `, p.Import(ptypesImport), `.TimestampProto(m.`, fieldName, `); err != nil {`)
 				p.P(`return to, err`)
