@@ -759,18 +759,25 @@ func (p *OrmPlugin) generateFieldConversion(message *generator.Descriptor, field
 				}
 			} else {
 				if nillable {
-					p.P(`if v, err := `, p.Import(ptypesImport), `.TimestampProto(*m.`, fieldName, `); err != nil {`)
+					p.P(`if m.`, fieldName, ` != nil {`)
+						p.P(`if v, err := `, p.Import(ptypesImport), `.TimestampProto(*m.`, fieldName, `); err != nil {`)
+							p.P(`return to, err`)
+						p.P(`} else {`)
+							p.P(`to.`, fieldName, ` = v`)
+						p.P(`}`)
+					p.P(`} else {`)
+						p.P(`to.`, fieldName, ` = nil`)
+					p.P(`}`)
 				} else {
 					p.P(`if v, err := `, p.Import(ptypesImport), `.TimestampProto(m.`, fieldName, `); err != nil {`)
-				}
-				p.P(`return to, err`)
-				p.P(`} else {`)
-				//if nillable {
-				//	p.P(`to.`, fieldName, ` = &v`)
-				//} else {
+					p.P(`return to, err`)
+					p.P(`} else {`)
 					p.P(`to.`, fieldName, ` = v`)
-				//}
-				p.P(`}`)
+					p.P(`}`)
+					p.P(`}`)
+				}
+	
+
 			}
 		} else if coreType == protoTypeJSON {
 			if p.dbEngine == ENGINE_POSTGRES {
