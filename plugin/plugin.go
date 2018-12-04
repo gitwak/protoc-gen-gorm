@@ -688,11 +688,11 @@ func (p *OrmPlugin) generateFieldConversion(message *generator.Descriptor, field
 		nillable := strings.HasPrefix(ofield.Type, "*")
 		if toORM {
 			if nillable {
-				p.P(`if m.`, fieldName, ` != nil {`)
+				p.P(`if int(m.`, fieldName, `) != 0 {`)
 				if p.stringEnums {	
-					p.P(`to.`, fieldName, ` = `, fieldType, `_name[int32(*m.`, fieldName, `)]`)
+					p.P(`to.`, fieldName, ` = `, fieldType, `_name[int32(m.`, fieldName, `)]`)
 				} else {
-					p.P(`to.`, fieldName, ` = int32(*m.`, fieldName, `)`)
+					p.P(`to.`, fieldName, ` = int32(m.`, fieldName, `)`)
 				}
 				p.P(`} else { `)
 				p.P(`to.`, fieldName, ` = nil`)
