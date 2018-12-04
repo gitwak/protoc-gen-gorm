@@ -254,6 +254,10 @@ func (p *OrmPlugin) parseBasicFields(msg *generator.Descriptor) {
 				fieldType = "time.Time"
 				typePackage = "time"
 				p.UsingGoImports("time")
+
+				if tag.GetNotNull() {
+					fieldType = strings.TrimPrefix(fieldType, "*")
+				}				
 			} else if rawType == protoTypeJSON {
 				if p.dbEngine == ENGINE_POSTGRES {
 					fieldType = fmt.Sprintf("*%s.Jsonb", p.Import(gormpqImport))
