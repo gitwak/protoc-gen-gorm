@@ -233,6 +233,10 @@ func (p *OrmPlugin) parseBasicFields(msg *generator.Descriptor) {
 			if p.stringEnums {
 				fieldType = "string"
 			}
+			tag := getFieldOptions(field).GetTag()
+			if !tag.GetNotNull() {
+				fieldType = "*" + fieldType
+			}			
 		} else if *(field.Type) == typeMessage {
 			//Check for WKTs or fields of nonormable types
 			parts := strings.Split(fieldType, ".")
@@ -681,18 +685,35 @@ func (p *OrmPlugin) generateFieldConversion(message *generator.Descriptor, field
 			p.P(`// Repeated type `, fieldType, ` is not an ORMable message type`)
 		}
 	} else if *(field.Type) == typeEnum { // Singular Enum, which is an int32 ---
+		nillable := strings.HasPrefix(ofield.Type, "*")
 		if toORM {
-			if p.stringEnums {
+			if nillable {
+				p.P(`if m.`, fieldName, ` != nil {`)
+			}			
+			if p.stringEnums {	
 				p.P(`to.`, fieldName, ` = `, fieldType, `_name[int32(m.`, fieldName, `)]`)
 			} else {
 				p.P(`to.`, fieldName, ` = int32(m.`, fieldName, `)`)
 			}
+			if nillable {
+				p.P(`} else { `)
+				p.P(`to.`, fieldName, ` = nil`)
+				p.P(`}`)
+			}
 		} else {
+			if nillable {
+				p.P(`if m.`, fieldName, ` != nil {`)
+			}
 			if p.stringEnums {
 				p.P(`to.`, fieldName, ` = `, fieldType, `(`, fieldType, `_value[m.`, fieldName, `])`)
 			} else {
 				p.P(`to.`, fieldName, ` = `, fieldType, `(m.`, fieldName, `)`)
 			}
+			if nillable {
+				p.P(`} else { `)
+				p.P(`to.`, fieldName, ` = nil`)
+				p.P(`}`)
+			}			
 		}
 	} else if *(field.Type) == typeMessage { // Singular Object -------------
 		//Check for WKTs
