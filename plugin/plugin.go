@@ -714,7 +714,7 @@ func (p *OrmPlugin) generateFieldConversion(message *generator.Descriptor, field
 					p.P(`to.`, fieldName, ` = `, fieldType, `(*m.`, fieldName, `)`)
 				}
 				p.P(`} else { `)
-				p.P(`to.`, fieldName, ` = nil`)
+				p.P(`to.`, fieldName, ` = `, fieldType, `(0)`)
 				p.P(`}`)
 			} else {
 				if p.stringEnums {
