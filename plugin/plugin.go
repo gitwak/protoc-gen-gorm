@@ -259,6 +259,7 @@ func (p *OrmPlugin) parseBasicFields(msg *generator.Descriptor) {
 				typePackage = "time"
 				p.UsingGoImports("time")
 
+				tag := getFieldOptions(field).GetTag()
 				if tag.GetNotNull() {
 					fieldType = strings.TrimPrefix(fieldType, "*")
 				}				
