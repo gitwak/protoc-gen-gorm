@@ -774,10 +774,7 @@ func (p *OrmPlugin) generateFieldConversion(message *generator.Descriptor, field
 					p.P(`} else {`)
 					p.P(`to.`, fieldName, ` = v`)
 					p.P(`}`)
-					p.P(`}`)
 				}
-	
-
 			}
 		} else if coreType == protoTypeJSON {
 			if p.dbEngine == ENGINE_POSTGRES {
