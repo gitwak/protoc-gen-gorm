@@ -255,14 +255,14 @@ func (p *OrmPlugin) parseBasicFields(msg *generator.Descriptor) {
 					fieldOpts.Tag = tagWithType(tag, "uuid")
 				}
 			} else if rawType == protoTypeTimestamp {
-				fieldType = "ZZZZZZtime.Time"
+				fieldType = "time.Time"
 				typePackage = "time"
 				p.UsingGoImports("time")
 
-				//tag := getFieldOptions(field).GetTag()
-				//if tag.GetNotNull() {
-				//	fieldType = strings.TrimPrefix(fieldType, "*")
-				//}				
+				tag := getFieldOptions(field).GetTag()
+				if !tag.GetNotNull() {
+					fieldType = "*" + fieldType
+				}				
 			} else if rawType == protoTypeJSON {
 				if p.dbEngine == ENGINE_POSTGRES {
 					fieldType = fmt.Sprintf("*%s.Jsonb", p.Import(gormpqImport))
