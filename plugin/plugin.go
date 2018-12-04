@@ -689,30 +689,38 @@ func (p *OrmPlugin) generateFieldConversion(message *generator.Descriptor, field
 		if toORM {
 			if nillable {
 				p.P(`if m.`, fieldName, ` != nil {`)
-			}			
-			if p.stringEnums {	
-				p.P(`to.`, fieldName, ` = `, fieldType, `_name[int32(m.`, fieldName, `)]`)
-			} else {
-				p.P(`to.`, fieldName, ` = int32(m.`, fieldName, `)`)
-			}
-			if nillable {
+				if p.stringEnums {	
+					p.P(`to.`, fieldName, ` = `, fieldType, `_name[int32(*m.`, fieldName, `)]`)
+				} else {
+					p.P(`to.`, fieldName, ` = int32(*m.`, fieldName, `)`)
+				}
 				p.P(`} else { `)
 				p.P(`to.`, fieldName, ` = nil`)
 				p.P(`}`)
+			} else {
+				if p.stringEnums {	
+					p.P(`to.`, fieldName, ` = `, fieldType, `_name[int32(m.`, fieldName, `)]`)
+				} else {
+					p.P(`to.`, fieldName, ` = int32(m.`, fieldName, `)`)
+				}				
 			}
 		} else {
 			if nillable {
 				p.P(`if m.`, fieldName, ` != nil {`)
-			}
-			if p.stringEnums {
-				p.P(`to.`, fieldName, ` = `, fieldType, `(`, fieldType, `_value[m.`, fieldName, `])`)
-			} else {
-				p.P(`to.`, fieldName, ` = `, fieldType, `(m.`, fieldName, `)`)
-			}
-			if nillable {
+				if p.stringEnums {
+					p.P(`to.`, fieldName, ` = `, fieldType, `(`, fieldType, `_value[*m.`, fieldName, `])`)
+				} else {
+					p.P(`to.`, fieldName, ` = `, fieldType, `(*m.`, fieldName, `)`)
+				}
 				p.P(`} else { `)
 				p.P(`to.`, fieldName, ` = nil`)
 				p.P(`}`)
+			} else {
+				if p.stringEnums {
+					p.P(`to.`, fieldName, ` = `, fieldType, `(`, fieldType, `_value[m.`, fieldName, `])`)
+				} else {
+					p.P(`to.`, fieldName, ` = `, fieldType, `(m.`, fieldName, `)`)
+				}
 			}			
 		}
 	} else if *(field.Type) == typeMessage { // Singular Object -------------
