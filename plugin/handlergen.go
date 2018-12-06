@@ -78,16 +78,16 @@ func (p *OrmPlugin) generateCreateHandler(message *generator.Descriptor) {
 	p.P(`if err != nil {`)
 	p.P(`return nil, err`)
 	p.P(`}`)
-	p.generateBeforeHookCall(orm, "Create")
+	p.generateBeforeHookCall(orm, "DefaultCreate")
 	p.P(`if err = db.Create(&ormObj).Error; err != nil {`)
 	p.P(`return nil, err`)
 	p.P(`}`)
-	p.generateAfterHookCall(orm, "Create")
+	p.generateAfterHookCall(orm, "DefaultCreate")
 	p.P(`pbResponse, err := ormObj.ToPB(ctx)`)
 	p.P(`return &pbResponse, err`)
 	p.P(`}`)
-	p.generateBeforeHookDef(orm, "Create")
-	p.generateAfterHookDef(orm, "Create")
+	p.generateBeforeHookDef(orm, "DefaultCreate")
+	p.generateAfterHookDef(orm, "DefaultCreate")
 }
 
 func (p *OrmPlugin) generateReadHandler(message *generator.Descriptor) {
