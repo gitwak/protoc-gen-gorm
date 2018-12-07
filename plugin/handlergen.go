@@ -422,13 +422,13 @@ func (p *OrmPlugin) generateDeleteHandler(message *generator.Descriptor) {
 	p.generateAfterDeleteHookCall(ormable)
 	p.P(`return err`)
 	p.P(`}`)
-	p.generateBeforeHookDef(ormable, "Delete")
-	p.generateAfterHookDef(ormable, "Delete")
+	p.generateBeforeHookDef(ormable, "DefaultDelete")
+	p.generateAfterHookDef(ormable, "DefaultDelete")
 }
 
 func (p *OrmPlugin) generateBeforeDeleteHookCall(orm *OrmableType) {
 	p.P(`if hook, ok := interface{}(&ormObj).(`, orm.Name, `WithBeforeDelete); ok {`)
-	p.P(`if db, err = hook.BeforeDelete(ctx, db); err != nil {`)
+	p.P(`if db, err = hook.BeforeDefaultDelete(ctx, db); err != nil {`)
 	p.P(`return err`)
 	p.P(`}`)
 	p.P(`}`)
@@ -436,7 +436,7 @@ func (p *OrmPlugin) generateBeforeDeleteHookCall(orm *OrmableType) {
 
 func (p *OrmPlugin) generateAfterDeleteHookCall(orm *OrmableType) {
 	p.P(`if hook, ok := interface{}(&ormObj).(`, orm.Name, `WithAfterDelete); ok {`)
-	p.P(`err = hook.AfterDelete(ctx, db)`)
+	p.P(`err = hook.AfterDefaultDelete(ctx, db)`)
 	p.P(`}`)
 }
 
