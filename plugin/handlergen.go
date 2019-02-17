@@ -78,16 +78,17 @@ func (p *OrmPlugin) generateCreateHandler(message *generator.Descriptor) {
 	p.P(`if err != nil {`)
 	p.P(`return nil, err`)
 	p.P(`}`)
-	p.generateBeforeHookCall(orm, "DefaultCreate")
+	create := "Create_"
+	p.generateBeforeHookCall(orm, create)
 	p.P(`if err = db.Create(&ormObj).Error; err != nil {`)
 	p.P(`return nil, err`)
 	p.P(`}`)
-	p.generateAfterHookCall(orm, "DefaultCreate")
+	p.generateAfterHookCall(orm, create)
 	p.P(`pbResponse, err := ormObj.ToPB(ctx)`)
 	p.P(`return &pbResponse, err`)
 	p.P(`}`)
-	p.generateBeforeHookDef(orm, "DefaultCreate")
-	p.generateAfterHookDef(orm, "DefaultCreate")
+	p.generateBeforeHookDef(orm, create)
+	p.generateAfterHookDef(orm, create)
 }
 
 func (p *OrmPlugin) generateReadHandler(message *generator.Descriptor) {
@@ -422,21 +423,22 @@ func (p *OrmPlugin) generateDeleteHandler(message *generator.Descriptor) {
 	p.generateAfterDeleteHookCall(ormable)
 	p.P(`return err`)
 	p.P(`}`)
-	p.generateBeforeHookDef(ormable, "DefaultDelete")
-	p.generateAfterHookDef(ormable, "DefaultDelete")
+	delete := "Delete_"
+	p.generateBeforeHookDef(ormable, delete)
+	p.generateAfterHookDef(ormable, delete)
 }
 
 func (p *OrmPlugin) generateBeforeDeleteHookCall(orm *OrmableType) {
-	p.P(`if hook, ok := interface{}(&ormObj).(`, orm.Name, `WithBeforeDefaultDelete); ok {`)
-	p.P(`if db, err = hook.BeforeDefaultDelete(ctx, db); err != nil {`)
+	p.P(`if hook, ok := interface{}(&ormObj).(`, orm.Name, `WithBeforeDelete_); ok {`)
+	p.P(`if db, err = hook.BeforeDelete_(ctx, db); err != nil {`)
 	p.P(`return err`)
 	p.P(`}`)
 	p.P(`}`)
 }
 
 func (p *OrmPlugin) generateAfterDeleteHookCall(orm *OrmableType) {
-	p.P(`if hook, ok := interface{}(&ormObj).(`, orm.Name, `WithAfterDefaultDelete); ok {`)
-	p.P(`err = hook.AfterDefaultDelete(ctx, db)`)
+	p.P(`if hook, ok := interface{}(&ormObj).(`, orm.Name, `WithAfterDelete_); ok {`)
+	p.P(`err = hook.AfterDelete_(ctx, db)`)
 	p.P(`}`)
 }
 
@@ -686,15 +688,21 @@ func (p *OrmPlugin) generateStrictUpdateHandler(message *generator.Descriptor) {
 	ormable := p.getOrmable(typeName)
 	if p.gateway {
 		p.P(`var count int64`)
-		if p.hasPrimaryKey(ormable) {
-			pkName, pk := p.findPrimaryKey(ormable)
-			column := pk.GetTag().GetColumn()
-			if len(column) == 0 {
-				column = jgorm.ToDBName(pkName)
-			}
-			p.P(`lockedRow := &`, typeName, `ORM{}`)
-			p.P(`count = db.Model(&ormObj).Set("gorm:query_option", "FOR UPDATE").Where("`, column, `=?", ormObj.`, pkName, `).First(lockedRow).RowsAffected`)
+	}
+	if p.hasPrimaryKey(ormable) {
+		pkName, pk := p.findPrimaryKey(ormable)
+		column := pk.GetTag().GetColumn()
+		if len(column) == 0 {
+			column = jgorm.ToDBName(pkName)
 		}
+		p.P(`lockedRow := &`, typeName, `ORM{}`)
+		var count string
+		var rowsAffected string
+		if p.gateway {
+			count = `count = `
+			rowsAffected = `.RowsAffected`
+		}
+		p.P(count+`db.Model(&ormObj).Set("gorm:query_option", "FOR UPDATE").Where("`, column, `=?", ormObj.`, pkName, `).First(lockedRow)`+rowsAffected)
 	}
 	p.generateBeforeHookCall(ormable, "StrictUpdateCleanup")
 	p.removeChildAssociations(message)
